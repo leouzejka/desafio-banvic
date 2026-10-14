@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow
+  namespace: banvic
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: airflow
+
+  template:
+    metadata:
+      labels:
+        app: airflow
+
+    spec:
+      # O API Server não acessa a API do Kubernetes
+      automountServiceAccountToken: false
+
+      containers:
+        - name: airflow
+          image: banvic-airflow:3.3.1
+          imagePullPolicy: IfNotPresent
+
+          command:
+            - airflow
+            - api-server
+
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - configMapRef:
+                name: airflow-config
+            - secretRef:
+                name: airflow-auth
+            - secretRef:
+                name: airflow-database
+
+          # Só recebe tráfego quando responde; é reiniciado se travar
+          readinessProbe:
+            httpGet:
+              path: /api/v2/monitor/health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v2/monitor/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 5

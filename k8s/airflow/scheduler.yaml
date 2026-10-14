@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow-scheduler
+  namespace: banvic
+spec:
+  replicas: 1
+  # Encerra o Scheduler antigo antes de subir o novo (evita dois ao mesmo tempo)
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: airflow-scheduler
+  template:
+    metadata:
+      labels:
+        app: airflow-scheduler
+    spec:
+      # ServiceAccount com permissão para criar os Pods do Meltano (rbac.yaml)
+      serviceAccountName: airflow-scheduler
+      containers:
+        - name: scheduler
+          image: banvic-airflow:3.3.1
+          imagePullPolicy: IfNotPresent
+          command:
+            - airflow
+            - scheduler
+
+          # Credenciais vêm somente de Secrets: airflow-auth (JWT) e
+          # airflow-database (banco do Airflow). A conexão com o
+          # banvic_database vai direto para o Pod do Meltano.
+          envFrom:
+            - configMapRef:
+                name: airflow-config
+            - secretRef:
+                name: airflow-auth
+            - secretRef:
+                name: airflow-database
+
+          # Reinicia o container se o Scheduler parar de enviar heartbeat
+          livenessProbe:
+            exec:
+              command:
+                - airflow
+                - jobs
+                - check
+                - --job-type
+                - SchedulerJob
+                - --local
+            initialDelaySeconds: 60
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 3

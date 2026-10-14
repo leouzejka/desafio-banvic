@@ -1,0 +1,31 @@
+default_environment: k8s
+
+project_id: 01a0a0b3-ca3e-7f4c-a28d-423336bec84a
+
+# Ambiente usado pelo Pod do Meltano no Kubernetes.
+# A URL de conexão vem do Secret banvic-postgres-connection.
+environments:
+  - name: k8s
+    config:
+      plugins:
+        loaders:
+          - name: target-postgres
+            config:
+              sqlalchemy_url: ${TARGET_POSTGRES_SQLALCHEMY_URL}
+              default_target_schema: banvic_raw
+
+plugins:
+  extractors:
+    - name: tap-csv
+      variant: meltanolabs
+      # tap-csv não é publicado no PyPI: versão fixada por commit
+      pip_url: git+https://github.com/MeltanoLabs/tap-csv.git@f942c18bd3fdf1884464101c2486e2cc0f49f3ed
+      config:
+        csv_files_definition: meltano/csv_files_definition.json
+      select:
+        - '*.*'
+
+  loaders:
+    - name: target-postgres
+      variant: meltanolabs
+      pip_url: meltanolabs-target-postgres==0.8.0

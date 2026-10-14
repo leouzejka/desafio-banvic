@@ -1,0 +1,37 @@
+[
+  {
+    "entity": "agencias",
+    "path": "/data/raw/agencias.csv",
+    "keys": ["cod_agencia"]
+  },
+  {
+    "entity": "clientes",
+    "path": "/data/raw/clientes.csv",
+    "keys": ["cod_cliente"]
+  },
+  {
+    "entity": "colaborador_agencia",
+    "path": "/data/raw/colaborador_agencia.csv",
+    "keys": ["cod_colaborador", "cod_agencia"]
+  },
+  {
+    "entity": "colaboradores",
+    "path": "/data/raw/colaboradores.csv",
+    "keys": ["cod_colaborador"]
+  },
+  {
+    "entity": "conta",
+    "path": "/data/raw/contas.csv",
+    "keys": ["num_conta"]
+  },
+  {
+    "entity": "proposta_credito",
+    "path": "/data/raw/propostas_credito.csv",
+    "keys": ["cod_proposta"]
+  },
+  {
+    "entity": "transacoes",
+    "path": "/data/raw/transacoes.csv",
+    "keys": ["cod_transacao"]
+  }
+]

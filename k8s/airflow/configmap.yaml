@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-config
+  namespace: banvic
+# Configuração comum a todos os componentes do Airflow (sem segredos).
+data:
+  AIRFLOW__CORE__EXECUTOR: "LocalExecutor"
+  AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow:8080/execution/"
+  AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+  # O API Server busca os logs das tasks no Scheduler pelo IP do Pod
+  AIRFLOW__CORE__HOSTNAME_CALLABLE: "airflow.utils.net.get_host_ip_address"

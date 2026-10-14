@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airflow-db-migrate
+  namespace: banvic
+spec:
+  backoffLimit: 3
+
+  template:
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+
+      containers:
+        - name: airflow-migrate
+          image: banvic-airflow:3.3.1
+          imagePullPolicy: IfNotPresent
+
+          # Cria ou atualiza as tabelas internas do Airflow no banco "airflow"
+          command:
+            - airflow
+            - db
+            - migrate
+
+          envFrom:
+            - configMapRef:
+                name: airflow-config
+            - secretRef:
+                name: airflow-database
